@@ -1,0 +1,22 @@
+{
+	"name": "shruti_out",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "linkedserviceadftuti",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "DelimitedText",
+		"typeProperties": {
+			"location": {
+				"type": "AzureBlobStorageLocation",
+				"container": "adfshrutituti"
+			},
+			"columnDelimiter": ",",
+			"escapeChar": "\\",
+			"quoteChar": "\""
+		},
+		"schema": []
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}

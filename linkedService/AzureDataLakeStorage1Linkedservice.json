@@ -1,0 +1,16 @@
+{
+	"name": "AzureDataLakeStorage1Linkedservice",
+	"type": "Microsoft.DataFactory/factories/linkedservices",
+	"properties": {
+		"annotations": [],
+		"type": "AzureBlobFS",
+		"typeProperties": {
+			"url": "https://storageaccounttuti.dfs.core.windows.net/",
+			"encryptedCredential": "eyJDcmVkZW50aWFsSWQiOiIwZTBjZmU3ZS01ZTZlLTQ2ZTYtYWU3NC1iZWNlYjI2NTQ1OGQiLCJWZXJzaW9uIjoiMi4wIiwiQ2xhc3NUeXBlIjoiTWljcm9zb2Z0LkRhdGFQcm94eS5Db3JlLkludGVyU2VydmljZURhdGFDb250cmFjdC5DcmVkZW50aWFsU1UwNkNZMTQifQ=="
+		},
+		"connectVia": {
+			"referenceName": "IR-selfhosted",
+			"type": "IntegrationRuntimeReference"
+		}
+	}
+}

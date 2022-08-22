@@ -1,0 +1,9 @@
+{
+	"name": "ADFtuti",
+	"location": "eastus",
+	"identity": {
+		"type": "SystemAssigned",
+		"principalId": "39162dc5-f91a-44c5-a388-9f0e9cb25ce3",
+		"tenantId": "5115704e-dc20-421e-ad20-b3a7dc682bce"
+	}
+}

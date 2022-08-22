@@ -1,0 +1,19 @@
+{
+	"name": "satdestani",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "linkedserviceadftuti",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "Binary",
+		"typeProperties": {
+			"location": {
+				"type": "AzureBlobStorageLocation",
+				"folderPath": "output11",
+				"container": "adfshrutituti"
+			}
+		}
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}

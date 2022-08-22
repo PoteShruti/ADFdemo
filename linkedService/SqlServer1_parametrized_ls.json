@@ -1,0 +1,21 @@
+{
+	"name": "SqlServer1_parametrized_ls",
+	"type": "Microsoft.DataFactory/factories/linkedservices",
+	"properties": {
+		"parameters": {
+			"dbname": {
+				"type": "string"
+			}
+		},
+		"annotations": [],
+		"type": "SqlServer",
+		"typeProperties": {
+			"connectionString": "integrated security=False;data source=localhost;initial catalog=@{linkedService().dbname};user id=sa",
+			"encryptedCredential": "eyJDcmVkZW50aWFsSWQiOiI1YmZhMDc3Zi0xZjhhLTQ1YTAtOTU5NS05NDQwMGY5NzAzOTciLCJWZXJzaW9uIjoiMi4wIiwiQ2xhc3NUeXBlIjoiTWljcm9zb2Z0LkRhdGFQcm94eS5Db3JlLkludGVyU2VydmljZURhdGFDb250cmFjdC5DcmVkZW50aWFsU1UwNkNZMTQifQ=="
+		},
+		"connectVia": {
+			"referenceName": "IR-selfhosted",
+			"type": "IntegrationRuntimeReference"
+		}
+	}
+}

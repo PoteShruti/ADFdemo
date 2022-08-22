@@ -1,0 +1,19 @@
+{
+	"name": "satsource",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "linkedserviceadftuti",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "Binary",
+		"typeProperties": {
+			"location": {
+				"type": "AzureBlobStorageLocation",
+				"folderPath": "input11",
+				"container": "adfshrutituti"
+			}
+		}
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}

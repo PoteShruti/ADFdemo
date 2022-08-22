@@ -1,0 +1,32 @@
+{
+	"name": "SqlServerTable1DATASET",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "SqlServer1linkedserviceDB",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "SqlServerTable",
+		"schema": [
+			{
+				"name": "E_id",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "Name",
+				"type": "varchar"
+			},
+			{
+				"name": "M_id",
+				"type": "int",
+				"precision": 10
+			}
+		],
+		"typeProperties": {
+			"schema": "dbo",
+			"table": "Gender"
+		}
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}
