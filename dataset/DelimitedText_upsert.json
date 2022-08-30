@@ -1,0 +1,33 @@
+{
+	"name": "DelimitedText_upsert",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "linkedserviceadftuti",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "DelimitedText",
+		"typeProperties": {
+			"location": {
+				"type": "AzureBlobStorageLocation",
+				"fileName": "filestud.csv",
+				"folderPath": "Input",
+				"container": "adfdemotuti"
+			},
+			"columnDelimiter": ",",
+			"escapeChar": "\\",
+			"firstRowAsHeader": true,
+			"quoteChar": "\""
+		},
+		"schema": [
+			{
+				"name": "Name ",
+				"type": "String"
+			},
+			{
+				"name": " age",
+				"type": "String"
+			}
+		]
+	}
+}
