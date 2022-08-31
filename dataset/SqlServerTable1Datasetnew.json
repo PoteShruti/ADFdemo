@@ -1,0 +1,33 @@
+{
+	"name": "SqlServerTable1Datasetnew",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "SqlServer1_parametrized_ls",
+			"type": "LinkedServiceReference",
+			"parameters": {
+				"dbname": {
+					"value": "@dataset().DBname",
+					"type": "Expression"
+				}
+			}
+		},
+		"parameters": {
+			"DBname": {
+				"type": "string"
+			},
+			"Tablename": {
+				"type": "string"
+			}
+		},
+		"annotations": [],
+		"type": "SqlServerTable",
+		"schema": [],
+		"typeProperties": {
+			"schema": "dbo",
+			"table": {
+				"value": "@dataset().Tablename",
+				"type": "Expression"
+			}
+		}
+	}
+}

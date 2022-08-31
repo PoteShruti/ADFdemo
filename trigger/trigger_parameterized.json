@@ -1,0 +1,29 @@
+{
+	"name": "trigger_parameterized",
+	"properties": {
+		"annotations": [],
+		"runtimeState": "Started",
+		"pipelines": [
+			{
+				"pipelineReference": {
+					"referenceName": "pipeline_parameterized",
+					"type": "PipelineReference"
+				},
+				"parameters": {
+					"SourceTable": "stud_t",
+					"DestinationTable": "Table2",
+					"DBnameforpipeline": "Demo"
+				}
+			}
+		],
+		"type": "ScheduleTrigger",
+		"typeProperties": {
+			"recurrence": {
+				"frequency": "Day",
+				"interval": 1,
+				"startTime": "2022-08-31T02:52:00Z",
+				"timeZone": "UTC"
+			}
+		}
+	}
+}
