@@ -23,6 +23,15 @@
 		"AzureDataLakeStorage1Linkedservice_properties_typeProperties_url": {
 			"value": "https://storageaccounttuti.dfs.core.windows.net/"
 		},
+		"trigger_parameterized_properties_pipeline_parameterized_parameters_SourceTable": {
+			"value": "stud_t"
+		},
+		"trigger_parameterized_properties_pipeline_parameterized_parameters_DestinationTable": {
+			"value": "Table2"
+		},
+		"trigger_parameterized_properties_pipeline_parameterized_parameters_DBnameforpipeline": {
+			"value": "Demo"
+		},
 		"containerUri": {
 			"value": ""
 		},

@@ -6,6 +6,18 @@
 			"type": "string",
 			"metadata": "Data Factory name",
 			"defaultValue": "ADFtuti"
+		},
+		"trigger_parameterized_properties_pipeline_parameterized_parameters_SourceTable": {
+			"type": "string",
+			"defaultValue": "stud_t"
+		},
+		"trigger_parameterized_properties_pipeline_parameterized_parameters_DestinationTable": {
+			"type": "string",
+			"defaultValue": "Table2"
+		},
+		"trigger_parameterized_properties_pipeline_parameterized_parameters_DBnameforpipeline": {
+			"type": "string",
+			"defaultValue": "Demo"
 		}
 	},
 	"variables": {
@@ -398,6 +410,42 @@
 			"dependsOn": []
 		},
 		{
+			"name": "[concat(parameters('factoryName'), '/SqlServerTable1Datasetnew')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "SqlServer1_parametrized_ls",
+					"type": "LinkedServiceReference",
+					"parameters": {
+						"dbname": {
+							"value": "@dataset().DBname",
+							"type": "Expression"
+						}
+					}
+				},
+				"parameters": {
+					"DBname": {
+						"type": "string"
+					},
+					"Tablename": {
+						"type": "string"
+					}
+				},
+				"annotations": [],
+				"type": "SqlServerTable",
+				"schema": [],
+				"typeProperties": {
+					"schema": "dbo",
+					"table": {
+						"value": "@dataset().Tablename",
+						"type": "Expression"
+					}
+				}
+			},
+			"dependsOn": []
+		},
+		{
 			"name": "[concat(parameters('factoryName'), '/SqlServerTable1_out')]",
 			"type": "Microsoft.DataFactory/factories/datasets",
 			"apiVersion": "2018-06-01",
@@ -743,6 +791,100 @@
 			]
 		},
 		{
+			"name": "[concat(parameters('factoryName'), '/pipeline_parameterized')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Copy data1",
+						"type": "Copy",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "SqlServerSource",
+								"queryTimeout": "02:00:00",
+								"partitionOption": "None"
+							},
+							"sink": {
+								"type": "SqlServerSink",
+								"writeBehavior": "insert",
+								"sqlWriterUseTableLock": false
+							},
+							"enableStaging": false,
+							"translator": {
+								"type": "TabularTranslator",
+								"typeConversion": true,
+								"typeConversionSettings": {
+									"allowDataTruncation": true,
+									"treatBooleanAsNumber": false
+								}
+							}
+						},
+						"inputs": [
+							{
+								"referenceName": "SqlServerTable1Datasetnew",
+								"type": "DatasetReference",
+								"parameters": {
+									"DBname": {
+										"value": "@pipeline().parameters.DBnameforpipeline",
+										"type": "Expression"
+									},
+									"Tablename": {
+										"value": "@pipeline().parameters.SourceTable",
+										"type": "Expression"
+									}
+								}
+							}
+						],
+						"outputs": [
+							{
+								"referenceName": "SqlServerTable1Datasetnew",
+								"type": "DatasetReference",
+								"parameters": {
+									"DBname": {
+										"value": "@pipeline().parameters.DBnameforpipeline",
+										"type": "Expression"
+									},
+									"Tablename": {
+										"value": "@pipeline().parameters.DestinationTable",
+										"type": "Expression"
+									}
+								}
+							}
+						]
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {},
+					"cancelAfter": {}
+				},
+				"parameters": {
+					"SourceTable": {
+						"type": "string"
+					},
+					"DestinationTable": {
+						"type": "string"
+					},
+					"DBnameforpipeline": {
+						"type": "string"
+					}
+				},
+				"annotations": []
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/datasets/SqlServerTable1Datasetnew')]"
+			]
+		},
+		{
 			"name": "[concat(parameters('factoryName'), '/pushdatatosql')]",
 			"type": "Microsoft.DataFactory/factories/pipelines",
 			"apiVersion": "2018-06-01",
@@ -938,6 +1080,40 @@
 				}
 			},
 			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/trigger_parameterized')]",
+			"type": "Microsoft.DataFactory/factories/triggers",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"annotations": [],
+				"runtimeState": "Started",
+				"pipelines": [
+					{
+						"pipelineReference": {
+							"referenceName": "pipeline_parameterized",
+							"type": "PipelineReference"
+						},
+						"parameters": {
+							"SourceTable": "[parameters('trigger_parameterized_properties_pipeline_parameterized_parameters_SourceTable')]",
+							"DestinationTable": "[parameters('trigger_parameterized_properties_pipeline_parameterized_parameters_DestinationTable')]",
+							"DBnameforpipeline": "[parameters('trigger_parameterized_properties_pipeline_parameterized_parameters_DBnameforpipeline')]"
+						}
+					}
+				],
+				"type": "ScheduleTrigger",
+				"typeProperties": {
+					"recurrence": {
+						"frequency": "Day",
+						"interval": 1,
+						"startTime": "2022-08-31T02:52:00Z",
+						"timeZone": "UTC"
+					}
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/pipelines/pipeline_parameterized')]"
+			]
 		}
 	]
 }

@@ -31,6 +31,18 @@
 			"type": "string",
 			"defaultValue": "https://storageaccounttuti.dfs.core.windows.net/"
 		},
+		"trigger_parameterized_properties_pipeline_parameterized_parameters_SourceTable": {
+			"type": "string",
+			"defaultValue": "stud_t"
+		},
+		"trigger_parameterized_properties_pipeline_parameterized_parameters_DestinationTable": {
+			"type": "string",
+			"defaultValue": "Table2"
+		},
+		"trigger_parameterized_properties_pipeline_parameterized_parameters_DBnameforpipeline": {
+			"type": "string",
+			"defaultValue": "Demo"
+		},
 		"containerUri": {
 			"type": "string",
 			"metadata": "URI to storage account containing linked ARM templates"
@@ -93,6 +105,15 @@
 				"parameters": {
 					"factoryName": {
 						"value": "[parameters('factoryName')]"
+					},
+					"trigger_parameterized_properties_pipeline_parameterized_parameters_SourceTable": {
+						"value": "[parameters('trigger_parameterized_properties_pipeline_parameterized_parameters_SourceTable')]"
+					},
+					"trigger_parameterized_properties_pipeline_parameterized_parameters_DestinationTable": {
+						"value": "[parameters('trigger_parameterized_properties_pipeline_parameterized_parameters_DestinationTable')]"
+					},
+					"trigger_parameterized_properties_pipeline_parameterized_parameters_DBnameforpipeline": {
+						"value": "[parameters('trigger_parameterized_properties_pipeline_parameterized_parameters_DBnameforpipeline')]"
 					}
 				}
 			},
