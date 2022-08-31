@@ -11,7 +11,7 @@
 		"type": "SqlServer",
 		"typeProperties": {
 			"connectionString": "integrated security=False;data source=localhost;initial catalog=@{linkedService().dbname};user id=sa",
-			"encryptedCredential": "eyJDcmVkZW50aWFsSWQiOiI1YmZhMDc3Zi0xZjhhLTQ1YTAtOTU5NS05NDQwMGY5NzAzOTciLCJWZXJzaW9uIjoiMi4wIiwiQ2xhc3NUeXBlIjoiTWljcm9zb2Z0LkRhdGFQcm94eS5Db3JlLkludGVyU2VydmljZURhdGFDb250cmFjdC5DcmVkZW50aWFsU1UwNkNZMTQifQ=="
+			"encryptedCredential": "eyJDcmVkZW50aWFsSWQiOiI0MTIwMmM4NC01NThkLTRkYTctYmM2Ny1hOWY2YWFmMWM2YjgiLCJWZXJzaW9uIjoiMi4wIiwiQ2xhc3NUeXBlIjoiTWljcm9zb2Z0LkRhdGFQcm94eS5Db3JlLkludGVyU2VydmljZURhdGFDb250cmFjdC5DcmVkZW50aWFsU1UwNkNZMTQifQ=="
 		},
 		"connectVia": {
 			"referenceName": "IR-selfhosted",
