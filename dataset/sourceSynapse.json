@@ -1,0 +1,30 @@
+{
+	"name": "sourceSynapse",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "AzureDataLakeStorage1Linkedservice",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "DelimitedText",
+		"typeProperties": {
+			"location": {
+				"type": "AzureBlobFSLocation",
+				"fileName": "stud_t.csv",
+				"folderPath": "Input",
+				"fileSystem": "adfdemotuti"
+			},
+			"columnDelimiter": ",",
+			"escapeChar": "\\",
+			"quoteChar": "\""
+		},
+		"schema": [
+			{
+				"type": "String"
+			},
+			{
+				"type": "String"
+			}
+		]
+	}
+}
