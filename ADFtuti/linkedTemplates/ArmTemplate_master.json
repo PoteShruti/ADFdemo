@@ -31,6 +31,10 @@
 			"type": "string",
 			"defaultValue": "https://storageaccounttuti.dfs.core.windows.net/"
 		},
+		"RestService1_properties_typeProperties_url": {
+			"type": "string",
+			"defaultValue": "https://reqres.in/api/users?"
+		},
 		"trigger_parameterized_properties_pipeline_parameterized_parameters_SourceTable": {
 			"type": "string",
 			"defaultValue": "stud_t"
@@ -82,8 +86,8 @@
 					"SqlServer1linkedserviceDB_connectionString": {
 						"value": "[parameters('SqlServer1linkedserviceDB_connectionString')]"
 					},
-					"SqlServerLinkedServiceupsert_connectionString": {
-						"value": "[parameters('SqlServerLinkedServiceupsert_connectionString')]"
+					"RestService1_properties_typeProperties_url": {
+						"value": "[parameters('RestService1_properties_typeProperties_url')]"
 					},
 					"AzureDataLakeStorage1Linkedservice_properties_typeProperties_url": {
 						"value": "[parameters('AzureDataLakeStorage1Linkedservice_properties_typeProperties_url')]"
@@ -106,6 +110,29 @@
 					"factoryName": {
 						"value": "[parameters('factoryName')]"
 					},
+					"SqlServerLinkedServiceupsert_connectionString": {
+						"value": "[parameters('SqlServerLinkedServiceupsert_connectionString')]"
+					}
+				}
+			},
+			"dependsOn": [
+				"[resourceId('Microsoft.Resources/deployments', 'ADFtuti_ArmTemplate_0')]"
+			]
+		},
+		{
+			"name": "ADFtuti_ArmTemplate_2",
+			"type": "Microsoft.Resources/deployments",
+			"apiVersion": "2018-02-01",
+			"properties": {
+				"mode": "incremental",
+				"templateLink": {
+					"uri": "[concat(parameters('containerUri'), '/ArmTemplate_2.json', parameters('containerSasToken'))]",
+					"contentVersion": "1.0.0.0"
+				},
+				"parameters": {
+					"factoryName": {
+						"value": "[parameters('factoryName')]"
+					},
 					"trigger_parameterized_properties_pipeline_parameterized_parameters_SourceTable": {
 						"value": "[parameters('trigger_parameterized_properties_pipeline_parameterized_parameters_SourceTable')]"
 					},
@@ -118,7 +145,7 @@
 				}
 			},
 			"dependsOn": [
-				"[resourceId('Microsoft.Resources/deployments', 'ADFtuti_ArmTemplate_0')]"
+				"[resourceId('Microsoft.Resources/deployments', 'ADFtuti_ArmTemplate_1')]"
 			]
 		}
 	]
