@@ -877,6 +877,54 @@
 			]
 		},
 		{
+			"name": "[concat(parameters('factoryName'), '/pipeline_aggregate')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Data flow1",
+						"type": "ExecuteDataFlow",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"dataflow": {
+								"referenceName": "aggregatedataflow",
+								"type": "DataFlowReference",
+								"parameters": {},
+								"datasetParameters": {
+									"input": {},
+									"source1": {},
+									"sink1": {}
+								}
+							},
+							"staging": {},
+							"compute": {
+								"coreCount": 8,
+								"computeType": "General"
+							},
+							"traceLevel": "Fine"
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {},
+					"cancelAfter": {}
+				},
+				"annotations": []
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/dataflows/aggregatedataflow')]"
+			]
+		},
+		{
 			"name": "[concat(parameters('factoryName'), '/pipeline_copy')]",
 			"type": "Microsoft.DataFactory/factories/pipelines",
 			"apiVersion": "2018-06-01",
@@ -2234,7 +2282,14 @@
 								"referenceName": "inputstudent",
 								"type": "DatasetReference"
 							},
-							"name": "student"
+							"name": "input"
+						},
+						{
+							"dataset": {
+								"referenceName": "inputdepartment",
+								"type": "DatasetReference"
+							},
+							"name": "source1"
 						}
 					],
 					"sinks": [
@@ -2243,12 +2298,15 @@
 								"referenceName": "OUTPUTDATASET",
 								"type": "DatasetReference"
 							},
-							"name": "Totalstudentbyid"
+							"name": "sink1"
 						}
 					],
 					"transformations": [
 						{
 							"name": "aggregate1"
+						},
+						{
+							"name": "join1"
 						}
 					],
 					"scriptLines": [
@@ -2259,24 +2317,38 @@
 						"     ),",
 						"     allowSchemaDrift: true,",
 						"     validateSchema: false,",
-						"     ignoreNoFilesFound: false) ~> student",
-						"student aggregate(groupBy(deptID),",
-						"     Totalstudent = count(deptID)) ~> aggregate1",
-						"aggregate1 sink(allowSchemaDrift: true,",
+						"     ignoreNoFilesFound: false) ~> input",
+						"source(output(",
+						"          {deptID } as string,",
+						"          { Department} as string",
+						"     ),",
+						"     allowSchemaDrift: true,",
 						"     validateSchema: false,",
-						"     partitionFileNames:['TotalstudentbyID.csv'],",
+						"     ignoreNoFilesFound: false) ~> source1",
+						"input aggregate(groupBy(deptID),",
+						"     Totalstudent = count(deptID)) ~> aggregate1",
+						"aggregate1, source1 join(deptID == {deptID },",
+						"     joinType:'inner',",
+						"     matchType:'exact',",
+						"     ignoreSpaces: false,",
+						"     broadcast: 'auto')~> join1",
+						"join1 sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     partitionFileNames:['agrregateoutput.csv'],",
 						"     skipDuplicateMapInputs: true,",
 						"     skipDuplicateMapOutputs: true,",
 						"     mapColumn(",
-						"          deptID,",
+						"          {deptID },",
+						"          { Department},",
 						"          Totalstudent",
 						"     ),",
-						"     partitionBy('hash', 1)) ~> Totalstudentbyid"
+						"     partitionBy('hash', 1)) ~> sink1"
 					]
 				}
 			},
 			"dependsOn": [
 				"[concat(variables('factoryId'), '/datasets/inputstudent')]",
+				"[concat(variables('factoryId'), '/datasets/inputdepartment')]",
 				"[concat(variables('factoryId'), '/datasets/OUTPUTDATASET')]"
 			]
 		},
@@ -2412,19 +2484,6 @@
 				"[concat(variables('factoryId'), '/datasets/inputstudent')]",
 				"[concat(variables('factoryId'), '/datasets/OUTPUTDATASET')]"
 			]
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/pipeline6')]",
-			"type": "Microsoft.DataFactory/factories/pipelines",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"policy": {
-					"elapsedTimeMetric": {},
-					"cancelAfter": {}
-				},
-				"annotations": []
-			},
-			"dependsOn": []
 		}
 	]
 }
