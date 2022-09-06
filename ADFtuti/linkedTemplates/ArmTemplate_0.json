@@ -11,25 +11,9 @@
 			"type": "secureString",
 			"metadata": "Secure string for 'connectionString' of 'linkedserviceadftuti'"
 		},
-		"AzureDataLakeStorage1Linkedservice_accountKey": {
-			"type": "secureString",
-			"metadata": "Secure string for 'accountKey' of 'AzureDataLakeStorage1Linkedservice'"
-		},
-		"SqlServer1_parametrized_ls_connectionString": {
-			"type": "secureString",
-			"metadata": "Secure string for 'connectionString' of 'SqlServer1_parametrized_ls'"
-		},
-		"SqlServer1linkedserviceDB_connectionString": {
-			"type": "secureString",
-			"metadata": "Secure string for 'connectionString' of 'SqlServer1linkedserviceDB'"
-		},
 		"RestService1_properties_typeProperties_url": {
 			"type": "string",
-			"defaultValue": "https://reqres.in/api/users?"
-		},
-		"AzureDataLakeStorage1Linkedservice_properties_typeProperties_url": {
-			"type": "string",
-			"defaultValue": "https://storageaccounttuti.dfs.core.windows.net/"
+			"defaultValue": "https://reqres.in/api/users"
 		}
 	},
 	"variables": {
@@ -243,6 +227,34 @@
 			]
 		},
 		{
+			"name": "[concat(parameters('factoryName'), '/OUTPUTDATASET')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "linkedserviceadftuti",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "DelimitedText",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobStorageLocation",
+						"folderPath": "Output",
+						"container": "adfdemotuti"
+					},
+					"columnDelimiter": ",",
+					"escapeChar": "\\",
+					"firstRowAsHeader": true,
+					"quoteChar": "\""
+				},
+				"schema": []
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/linkedserviceadftuti')]"
+			]
+		},
+		{
 			"name": "[concat(parameters('factoryName'), '/RestResourceDataset')]",
 			"type": "Microsoft.DataFactory/factories/datasets",
 			"apiVersion": "2018-06-01",
@@ -341,6 +353,86 @@
 						"type": "String"
 					},
 					{
+						"type": "String"
+					}
+				]
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/linkedserviceadftuti')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/inputdepartment')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "linkedserviceadftuti",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "DelimitedText",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobStorageLocation",
+						"fileName": "filestud.csv",
+						"folderPath": "Input",
+						"container": "adfdemotuti"
+					},
+					"columnDelimiter": ",",
+					"escapeChar": "\\",
+					"firstRowAsHeader": true,
+					"quoteChar": "\""
+				},
+				"schema": [
+					{
+						"name": "deptID ",
+						"type": "String"
+					},
+					{
+						"name": " Department",
+						"type": "String"
+					}
+				]
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/linkedserviceadftuti')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/inputstudent')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "linkedserviceadftuti",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "DelimitedText",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobStorageLocation",
+						"fileName": "stud_t.csv",
+						"folderPath": "Input",
+						"container": "adfdemotuti"
+					},
+					"columnDelimiter": ",",
+					"escapeChar": "\\",
+					"firstRowAsHeader": true,
+					"quoteChar": "\""
+				},
+				"schema": [
+					{
+						"name": "Name",
+						"type": "String"
+					},
+					{
+						"name": "Age",
+						"type": "String"
+					},
+					{
+						"name": "deptID",
 						"type": "String"
 					}
 				]
@@ -473,72 +565,6 @@
 			},
 			"dependsOn": [
 				"[concat(variables('factoryId'), '/linkedServices/linkedserviceadftuti')]"
-			]
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/AzureDataLakeStorage1Linkedservice')]",
-			"type": "Microsoft.DataFactory/factories/linkedServices",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"annotations": [],
-				"type": "AzureBlobFS",
-				"typeProperties": {
-					"url": "[parameters('AzureDataLakeStorage1Linkedservice_properties_typeProperties_url')]",
-					"accountKey": {
-						"type": "SecureString",
-						"value": "[parameters('AzureDataLakeStorage1Linkedservice_accountKey')]"
-					}
-				},
-				"connectVia": {
-					"referenceName": "IR-selfhosted",
-					"type": "IntegrationRuntimeReference"
-				}
-			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/integrationRuntimes/IR-selfhosted')]"
-			]
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/SqlServer1_parametrized_ls')]",
-			"type": "Microsoft.DataFactory/factories/linkedServices",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"parameters": {
-					"dbname": {
-						"type": "string"
-					}
-				},
-				"annotations": [],
-				"type": "SqlServer",
-				"typeProperties": {
-					"connectionString": "[parameters('SqlServer1_parametrized_ls_connectionString')]"
-				},
-				"connectVia": {
-					"referenceName": "IR-selfhosted",
-					"type": "IntegrationRuntimeReference"
-				}
-			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/integrationRuntimes/IR-selfhosted')]"
-			]
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/SqlServer1linkedserviceDB')]",
-			"type": "Microsoft.DataFactory/factories/linkedServices",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"annotations": [],
-				"type": "SqlServer",
-				"typeProperties": {
-					"connectionString": "[parameters('SqlServer1linkedserviceDB_connectionString')]"
-				},
-				"connectVia": {
-					"referenceName": "IR-selfhosted",
-					"type": "IntegrationRuntimeReference"
-				}
-			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/integrationRuntimes/IR-selfhosted')]"
 			]
 		}
 	]

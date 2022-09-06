@@ -24,7 +24,7 @@
 			"value": "https://storageaccounttuti.dfs.core.windows.net/"
 		},
 		"RestService1_properties_typeProperties_url": {
-			"value": "https://reqres.in/api/users?"
+			"value": "https://reqres.in/api/users"
 		},
 		"trigger_parameterized_properties_pipeline_parameterized_parameters_SourceTable": {
 			"value": "stud_t"

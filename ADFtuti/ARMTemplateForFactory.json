@@ -33,7 +33,7 @@
 		},
 		"RestService1_properties_typeProperties_url": {
 			"type": "string",
-			"defaultValue": "https://reqres.in/api/users?"
+			"defaultValue": "https://reqres.in/api/users"
 		},
 		"trigger_parameterized_properties_pipeline_parameterized_parameters_SourceTable": {
 			"type": "string",
@@ -1328,6 +1328,34 @@
 			]
 		},
 		{
+			"name": "[concat(parameters('factoryName'), '/OUTPUTDATASET')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "linkedserviceadftuti",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "DelimitedText",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobStorageLocation",
+						"folderPath": "Output",
+						"container": "adfdemotuti"
+					},
+					"columnDelimiter": ",",
+					"escapeChar": "\\",
+					"firstRowAsHeader": true,
+					"quoteChar": "\""
+				},
+				"schema": []
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/linkedserviceadftuti')]"
+			]
+		},
+		{
 			"name": "[concat(parameters('factoryName'), '/RestResourceDataset')]",
 			"type": "Microsoft.DataFactory/factories/datasets",
 			"apiVersion": "2018-06-01",
@@ -1625,6 +1653,86 @@
 						"type": "String"
 					},
 					{
+						"type": "String"
+					}
+				]
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/linkedserviceadftuti')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/inputdepartment')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "linkedserviceadftuti",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "DelimitedText",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobStorageLocation",
+						"fileName": "filestud.csv",
+						"folderPath": "Input",
+						"container": "adfdemotuti"
+					},
+					"columnDelimiter": ",",
+					"escapeChar": "\\",
+					"firstRowAsHeader": true,
+					"quoteChar": "\""
+				},
+				"schema": [
+					{
+						"name": "deptID ",
+						"type": "String"
+					},
+					{
+						"name": " Department",
+						"type": "String"
+					}
+				]
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/linkedserviceadftuti')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/inputstudent')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "linkedserviceadftuti",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "DelimitedText",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobStorageLocation",
+						"fileName": "stud_t.csv",
+						"folderPath": "Input",
+						"container": "adfdemotuti"
+					},
+					"columnDelimiter": ",",
+					"escapeChar": "\\",
+					"firstRowAsHeader": true,
+					"quoteChar": "\""
+				},
+				"schema": [
+					{
+						"name": "Name",
+						"type": "String"
+					},
+					{
+						"name": "Age",
+						"type": "String"
+					},
+					{
+						"name": "deptID",
 						"type": "String"
 					}
 				]
@@ -2017,6 +2125,85 @@
 				"typeProperties": {}
 			},
 			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/dataflow1')]",
+			"type": "Microsoft.DataFactory/factories/dataflows",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"type": "MappingDataFlow",
+				"typeProperties": {
+					"sources": [
+						{
+							"dataset": {
+								"referenceName": "inputstudent",
+								"type": "DatasetReference"
+							},
+							"name": "source1"
+						},
+						{
+							"dataset": {
+								"referenceName": "inputdepartment",
+								"type": "DatasetReference"
+							},
+							"name": "source2"
+						}
+					],
+					"sinks": [
+						{
+							"dataset": {
+								"referenceName": "OUTPUTDATASET",
+								"type": "DatasetReference"
+							},
+							"name": "outputdatasink"
+						}
+					],
+					"transformations": [
+						{
+							"name": "joinstuddatatodept"
+						}
+					],
+					"scriptLines": [
+						"source(output(",
+						"          Name as string,",
+						"          Age as string,",
+						"          deptID as string",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     ignoreNoFilesFound: false) ~> source1",
+						"source(output(",
+						"          {deptID } as string,",
+						"          { Department} as string",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     ignoreNoFilesFound: false) ~> source2",
+						"source1, source2 join(deptID == {deptID },",
+						"     joinType:'inner',",
+						"     matchType:'exact',",
+						"     ignoreSpaces: false,",
+						"     broadcast: 'auto')~> joinstuddatatodept",
+						"joinstuddatatodept sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     partitionFileNames:['studjoindept'],",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true,",
+						"     mapColumn(",
+						"          Student_Name = Name,",
+						"          Age,",
+						"          deptID,",
+						"          { Department}",
+						"     ),",
+						"     partitionBy('hash', 1)) ~> outputdatasink"
+					]
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/datasets/inputstudent')]",
+				"[concat(variables('factoryId'), '/datasets/inputdepartment')]",
+				"[concat(variables('factoryId'), '/datasets/OUTPUTDATASET')]"
+			]
 		}
 	]
 }

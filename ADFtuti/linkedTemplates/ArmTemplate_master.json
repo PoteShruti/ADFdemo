@@ -33,7 +33,7 @@
 		},
 		"RestService1_properties_typeProperties_url": {
 			"type": "string",
-			"defaultValue": "https://reqres.in/api/users?"
+			"defaultValue": "https://reqres.in/api/users"
 		},
 		"trigger_parameterized_properties_pipeline_parameterized_parameters_SourceTable": {
 			"type": "string",
@@ -77,20 +77,8 @@
 					"linkedserviceadftuti_connectionString": {
 						"value": "[parameters('linkedserviceadftuti_connectionString')]"
 					},
-					"AzureDataLakeStorage1Linkedservice_accountKey": {
-						"value": "[parameters('AzureDataLakeStorage1Linkedservice_accountKey')]"
-					},
-					"SqlServer1_parametrized_ls_connectionString": {
-						"value": "[parameters('SqlServer1_parametrized_ls_connectionString')]"
-					},
-					"SqlServer1linkedserviceDB_connectionString": {
-						"value": "[parameters('SqlServer1linkedserviceDB_connectionString')]"
-					},
 					"RestService1_properties_typeProperties_url": {
 						"value": "[parameters('RestService1_properties_typeProperties_url')]"
-					},
-					"AzureDataLakeStorage1Linkedservice_properties_typeProperties_url": {
-						"value": "[parameters('AzureDataLakeStorage1Linkedservice_properties_typeProperties_url')]"
 					}
 				}
 			},
@@ -110,8 +98,20 @@
 					"factoryName": {
 						"value": "[parameters('factoryName')]"
 					},
+					"AzureDataLakeStorage1Linkedservice_accountKey": {
+						"value": "[parameters('AzureDataLakeStorage1Linkedservice_accountKey')]"
+					},
+					"SqlServer1_parametrized_ls_connectionString": {
+						"value": "[parameters('SqlServer1_parametrized_ls_connectionString')]"
+					},
+					"SqlServer1linkedserviceDB_connectionString": {
+						"value": "[parameters('SqlServer1linkedserviceDB_connectionString')]"
+					},
 					"SqlServerLinkedServiceupsert_connectionString": {
 						"value": "[parameters('SqlServerLinkedServiceupsert_connectionString')]"
+					},
+					"AzureDataLakeStorage1Linkedservice_properties_typeProperties_url": {
+						"value": "[parameters('AzureDataLakeStorage1Linkedservice_properties_typeProperties_url')]"
 					}
 				}
 			},
