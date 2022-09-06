@@ -9,7 +9,14 @@
 						"referenceName": "inputstudent",
 						"type": "DatasetReference"
 					},
-					"name": "student"
+					"name": "input"
+				},
+				{
+					"dataset": {
+						"referenceName": "inputdepartment",
+						"type": "DatasetReference"
+					},
+					"name": "source1"
 				}
 			],
 			"sinks": [
@@ -18,12 +25,15 @@
 						"referenceName": "OUTPUTDATASET",
 						"type": "DatasetReference"
 					},
-					"name": "Totalstudentbyid"
+					"name": "sink1"
 				}
 			],
 			"transformations": [
 				{
 					"name": "aggregate1"
+				},
+				{
+					"name": "join1"
 				}
 			],
 			"scriptLines": [
@@ -34,19 +44,32 @@
 				"     ),",
 				"     allowSchemaDrift: true,",
 				"     validateSchema: false,",
-				"     ignoreNoFilesFound: false) ~> student",
-				"student aggregate(groupBy(deptID),",
-				"     Totalstudent = count(deptID)) ~> aggregate1",
-				"aggregate1 sink(allowSchemaDrift: true,",
+				"     ignoreNoFilesFound: false) ~> input",
+				"source(output(",
+				"          {deptID } as string,",
+				"          { Department} as string",
+				"     ),",
+				"     allowSchemaDrift: true,",
 				"     validateSchema: false,",
-				"     partitionFileNames:['TotalstudentbyID.csv'],",
+				"     ignoreNoFilesFound: false) ~> source1",
+				"input aggregate(groupBy(deptID),",
+				"     Totalstudent = count(deptID)) ~> aggregate1",
+				"aggregate1, source1 join(deptID == {deptID },",
+				"     joinType:'inner',",
+				"     matchType:'exact',",
+				"     ignoreSpaces: false,",
+				"     broadcast: 'auto')~> join1",
+				"join1 sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     partitionFileNames:['agrregateoutput.csv'],",
 				"     skipDuplicateMapInputs: true,",
 				"     skipDuplicateMapOutputs: true,",
 				"     mapColumn(",
-				"          deptID,",
+				"          {deptID },",
+				"          { Department},",
 				"          Totalstudent",
 				"     ),",
-				"     partitionBy('hash', 1)) ~> Totalstudentbyid"
+				"     partitionBy('hash', 1)) ~> sink1"
 			]
 		}
 	}
