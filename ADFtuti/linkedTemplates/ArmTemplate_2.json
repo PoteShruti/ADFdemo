@@ -230,6 +230,85 @@
 			"dependsOn": []
 		},
 		{
+			"name": "[concat(parameters('factoryName'), '/dataflow3')]",
+			"type": "Microsoft.DataFactory/factories/dataflows",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"type": "MappingDataFlow",
+				"typeProperties": {
+					"sources": [
+						{
+							"dataset": {
+								"referenceName": "inputstudent",
+								"type": "DatasetReference"
+							},
+							"name": "allstudent"
+						}
+					],
+					"sinks": [
+						{
+							"dataset": {
+								"referenceName": "OUTPUTDATASET",
+								"type": "DatasetReference"
+							},
+							"name": "ITstudents"
+						},
+						{
+							"dataset": {
+								"referenceName": "OUTPUTDATASET",
+								"type": "DatasetReference"
+							},
+							"name": "computetstudent"
+						},
+						{
+							"dataset": {
+								"referenceName": "OUTPUTDATASET",
+								"type": "DatasetReference"
+							},
+							"name": "othersstudent"
+						}
+					],
+					"transformations": [
+						{
+							"name": "splitbasedondept"
+						}
+					],
+					"scriptLines": [
+						"source(output(",
+						"          Name as string,",
+						"          Age as string,",
+						"          deptID as string",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     ignoreNoFilesFound: false) ~> allstudent",
+						"allstudent split(equals(deptID ,'1'),",
+						"     equals(deptID,'2'),",
+						"     disjoint: false) ~> splitbasedondept@(IT, comp, other)",
+						"splitbasedondept@IT sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     partitionFileNames:['ITstudent.csv'],",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true,",
+						"     partitionBy('hash', 1)) ~> ITstudents",
+						"splitbasedondept@comp sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     partitionFileNames:['compstudent.csv'],",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true,",
+						"     partitionBy('hash', 1)) ~> computetstudent",
+						"splitbasedondept@other sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     partitionFileNames:['others'],",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true,",
+						"     partitionBy('hash', 1)) ~> othersstudent"
+					]
+				}
+			},
+			"dependsOn": []
+		},
+		{
 			"name": "[concat(parameters('factoryName'), '/BULK')]",
 			"type": "Microsoft.DataFactory/factories/pipelines",
 			"apiVersion": "2018-06-01",
