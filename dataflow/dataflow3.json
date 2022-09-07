@@ -14,7 +14,25 @@
 			],
 			"sinks": [
 				{
-					"name": "sink1"
+					"dataset": {
+						"referenceName": "OUTPUTDATASET",
+						"type": "DatasetReference"
+					},
+					"name": "ITstudents"
+				},
+				{
+					"dataset": {
+						"referenceName": "OUTPUTDATASET",
+						"type": "DatasetReference"
+					},
+					"name": "computetstudent"
+				},
+				{
+					"dataset": {
+						"referenceName": "OUTPUTDATASET",
+						"type": "DatasetReference"
+					},
+					"name": "othersstudent"
 				}
 			],
 			"transformations": [
@@ -36,8 +54,22 @@
 				"     disjoint: false) ~> splitbasedondept@(IT, comp, other)",
 				"splitbasedondept@IT sink(allowSchemaDrift: true,",
 				"     validateSchema: false,",
+				"     partitionFileNames:['ITstudent.csv'],",
 				"     skipDuplicateMapInputs: true,",
-				"     skipDuplicateMapOutputs: true) ~> sink1"
+				"     skipDuplicateMapOutputs: true,",
+				"     partitionBy('hash', 1)) ~> ITstudents",
+				"splitbasedondept@comp sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     partitionFileNames:['compstudent.csv'],",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     partitionBy('hash', 1)) ~> computetstudent",
+				"splitbasedondept@other sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     partitionFileNames:['others'],",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     partitionBy('hash', 1)) ~> othersstudent"
 			]
 		}
 	}
