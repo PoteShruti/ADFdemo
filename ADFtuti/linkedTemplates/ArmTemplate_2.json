@@ -6,24 +6,64 @@
 			"type": "string",
 			"metadata": "Data Factory name",
 			"defaultValue": "ADFtuti"
-		},
-		"trigger_parameterized_properties_pipeline_parameterized_parameters_SourceTable": {
-			"type": "string",
-			"defaultValue": "stud_t"
-		},
-		"trigger_parameterized_properties_pipeline_parameterized_parameters_DestinationTable": {
-			"type": "string",
-			"defaultValue": "Table2"
-		},
-		"trigger_parameterized_properties_pipeline_parameterized_parameters_DBnameforpipeline": {
-			"type": "string",
-			"defaultValue": "Demo"
 		}
 	},
 	"variables": {
 		"factoryId": "[concat('Microsoft.DataFactory/factories/', parameters('factoryName'))]"
 	},
 	"resources": [
+		{
+			"name": "[concat(parameters('factoryName'), '/output_upsert')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "SqlServerLinkedServiceupsert",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "SqlServerTable",
+				"schema": [],
+				"typeProperties": {
+					"schema": "dbo",
+					"table": "stud_t"
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/sourceSynapse')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "AzureDataLakeStorage1Linkedservice",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "DelimitedText",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobFSLocation",
+						"fileName": "stud_t.csv",
+						"folderPath": "Input",
+						"fileSystem": "adfdemotuti"
+					},
+					"columnDelimiter": ",",
+					"escapeChar": "\\",
+					"quoteChar": "\""
+				},
+				"schema": [
+					{
+						"type": "String"
+					},
+					{
+						"type": "String"
+					}
+				]
+			},
+			"dependsOn": []
+		},
 		{
 			"name": "[concat(parameters('factoryName'), '/aggregatedataflow')]",
 			"type": "Microsoft.DataFactory/factories/dataflows",
@@ -370,6 +410,70 @@
 						"     skipDuplicateMapInputs: true,",
 						"     skipDuplicateMapOutputs: true,",
 						"     partitionBy('hash', 1)) ~> othersstudent"
+					]
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/dataflow_union')]",
+			"type": "Microsoft.DataFactory/factories/dataflows",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"type": "MappingDataFlow",
+				"typeProperties": {
+					"sources": [
+						{
+							"dataset": {
+								"referenceName": "uniondataset1",
+								"type": "DatasetReference"
+							},
+							"name": "source1"
+						},
+						{
+							"dataset": {
+								"referenceName": "uniondataset2",
+								"type": "DatasetReference"
+							},
+							"name": "source2"
+						}
+					],
+					"sinks": [
+						{
+							"dataset": {
+								"referenceName": "OUTPUTDATASET",
+								"type": "DatasetReference"
+							},
+							"name": "sink1"
+						}
+					],
+					"transformations": [
+						{
+							"name": "union1"
+						}
+					],
+					"scriptLines": [
+						"source(output(",
+						"          Column_1 as string,",
+						"          Column_2 as string,",
+						"          Column_3 as string",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     ignoreNoFilesFound: false) ~> source1",
+						"source(output(",
+						"          Column_1 as string,",
+						"          Column_2 as string,",
+						"          Column_3 as string",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     ignoreNoFilesFound: false) ~> source2",
+						"source1, source2 union(byName: true)~> union1",
+						"union1 sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true) ~> sink1"
 					]
 				}
 			},
@@ -1157,84 +1261,8 @@
 				},
 				"annotations": []
 			},
-			"dependsOn": []
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/Everylastsaturdayy')]",
-			"type": "Microsoft.DataFactory/factories/triggers",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"description": "pipeline to execute every Everylastsaturday of month",
-				"annotations": [],
-				"runtimeState": "Started",
-				"pipelines": [
-					{
-						"pipelineReference": {
-							"referenceName": "Copy data every saturday",
-							"type": "PipelineReference"
-						},
-						"parameters": {}
-					}
-				],
-				"type": "ScheduleTrigger",
-				"typeProperties": {
-					"recurrence": {
-						"frequency": "Month",
-						"interval": 1,
-						"startTime": "2022-08-09T08:21:00Z",
-						"endTime": "2022-09-03T00:21:00Z",
-						"timeZone": "UTC",
-						"schedule": {
-							"minutes": [
-								1
-							],
-							"hours": [
-								12
-							],
-							"monthlyOccurrences": [
-								{
-									"day": "Saturday",
-									"occurrence": -1
-								}
-							]
-						}
-					}
-				}
-			},
-			"dependsOn": []
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/trigger_parameterized')]",
-			"type": "Microsoft.DataFactory/factories/triggers",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"annotations": [],
-				"runtimeState": "Started",
-				"pipelines": [
-					{
-						"pipelineReference": {
-							"referenceName": "pipeline_parameterized",
-							"type": "PipelineReference"
-						},
-						"parameters": {
-							"SourceTable": "[parameters('trigger_parameterized_properties_pipeline_parameterized_parameters_SourceTable')]",
-							"DestinationTable": "[parameters('trigger_parameterized_properties_pipeline_parameterized_parameters_DestinationTable')]",
-							"DBnameforpipeline": "[parameters('trigger_parameterized_properties_pipeline_parameterized_parameters_DBnameforpipeline')]"
-						}
-					}
-				],
-				"type": "ScheduleTrigger",
-				"typeProperties": {
-					"recurrence": {
-						"frequency": "Day",
-						"interval": 1,
-						"startTime": "2022-08-31T02:52:00Z",
-						"timeZone": "UTC"
-					}
-				}
-			},
 			"dependsOn": [
-				"[concat(variables('factoryId'), '/pipelines/pipeline_parameterized')]"
+				"[concat(variables('factoryId'), '/datasets/output_upsert')]"
 			]
 		}
 	]
