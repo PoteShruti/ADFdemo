@@ -1,0 +1,49 @@
+{
+	"name": "dataflow_newbranch",
+	"properties": {
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "inputstudent",
+						"type": "DatasetReference"
+					},
+					"name": "student"
+				},
+				{
+					"dataset": {
+						"referenceName": "inputdepartment",
+						"type": "DatasetReference"
+					},
+					"name": "dept"
+				}
+			],
+			"sinks": [],
+			"transformations": [
+				{
+					"name": "aggregate1"
+				}
+			],
+			"scriptLines": [
+				"source(output(",
+				"          Name as string,",
+				"          Age as string,",
+				"          deptID as string",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     ignoreNoFilesFound: false) ~> student",
+				"source(output(",
+				"          {deptID } as string,",
+				"          { Department} as string",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     ignoreNoFilesFound: false) ~> dept",
+				"student aggregate(groupBy(deptID),",
+				"     Totalstudent = count(deptID)) ~> aggregate1"
+			]
+		}
+	}
+}
