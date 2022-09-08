@@ -1,0 +1,34 @@
+{
+	"name": "PivotTFS",
+	"properties": {
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "inputstudent",
+						"type": "DatasetReference"
+					},
+					"name": "Stud"
+				}
+			],
+			"sinks": [],
+			"transformations": [
+				{
+					"name": "aggregate1"
+				}
+			],
+			"scriptLines": [
+				"source(output(",
+				"          Name as string,",
+				"          Age as string,",
+				"          deptID as string",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     ignoreNoFilesFound: false) ~> Stud",
+				"Stud aggregate() ~> aggregate1"
+			]
+		}
+	}
+}
