@@ -12,7 +12,15 @@
 					"name": "Stud"
 				}
 			],
-			"sinks": [],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "OUTPUTDATASET",
+						"type": "DatasetReference"
+					},
+					"name": "sink1"
+				}
+			],
 			"transformations": [
 				{
 					"name": "aggregate1"
@@ -28,7 +36,13 @@
 				"     validateSchema: false,",
 				"     ignoreNoFilesFound: false) ~> Stud",
 				"Stud aggregate(groupBy(deptID),",
-				"     deptID = ERROR_FUNCTION('')) ~> aggregate1"
+				"     deptID = ERROR_FUNCTION('')) ~> aggregate1",
+				"aggregate1 sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     partitionFileNames:['pivot.csv'],",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     partitionBy('hash', 1)) ~> sink1"
 			]
 		}
 	}
