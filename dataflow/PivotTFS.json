@@ -27,7 +27,7 @@
 				"     allowSchemaDrift: true,",
 				"     validateSchema: false,",
 				"     ignoreNoFilesFound: false) ~> Stud",
-				"Stud aggregate() ~> aggregate1"
+				"Stud aggregate(groupBy(deptID)) ~> aggregate1"
 			]
 		}
 	}
