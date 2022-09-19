@@ -1,0 +1,20 @@
+{
+	"name": "Json_input",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "linkedserviceadftuti",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "Json",
+		"typeProperties": {
+			"location": {
+				"type": "AzureBlobStorageLocation",
+				"fileName": "sample2.json",
+				"folderPath": "Input",
+				"container": "adfdemotuti"
+			}
+		},
+		"schema": {}
+	}
+}

@@ -1,0 +1,72 @@
+{
+	"name": "dataflow_flatten",
+	"properties": {
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "Json_input",
+						"type": "DatasetReference"
+					},
+					"name": "source1"
+				}
+			],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "OUTPUTDATASET",
+						"type": "DatasetReference"
+					},
+					"name": "sink1"
+				}
+			],
+			"transformations": [
+				{
+					"name": "flatten1"
+				}
+			],
+			"scriptLines": [
+				"source(output(",
+				"          address as (city as string, state as string, streetAddress as short),",
+				"          age as short,",
+				"          firstName as string,",
+				"          gender as string,",
+				"          lastName as string,",
+				"          phoneNumbers as (number as long, type as string)[],",
+				"          skilss as string[]",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     ignoreNoFilesFound: false,",
+				"     documentForm: 'singleDocument') ~> source1",
+				"source1 foldDown(unroll(skilss),",
+				"     mapColumn(",
+				"          address,",
+				"          age,",
+				"          firstName,",
+				"          gender,",
+				"          lastName,",
+				"          phoneNumbers,",
+				"          skilss",
+				"     ),",
+				"     skipDuplicateMapInputs: false,",
+				"     skipDuplicateMapOutputs: false) ~> flatten1",
+				"flatten1 sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     partitionFileNames:['jsonflattnoutput.csv'],",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     mapColumn(",
+				"          age,",
+				"          firstName,",
+				"          gender,",
+				"          lastName,",
+				"          phoneNumbers,",
+				"          skilss",
+				"     ),",
+				"     partitionBy('hash', 1)) ~> sink1"
+			]
+		}
+	}
+}
