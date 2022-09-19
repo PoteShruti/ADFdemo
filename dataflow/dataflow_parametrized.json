@@ -28,7 +28,7 @@
 			],
 			"scriptLines": [
 				"parameters{",
-				"     GENDERNAME as string",
+				"     ID as integer",
 				"}",
 				"source(output(",
 				"          Name as string,",
@@ -39,7 +39,7 @@
 				"     allowSchemaDrift: true,",
 				"     validateSchema: false,",
 				"     ignoreNoFilesFound: false) ~> source1",
-				"source1 filter(Gender == $GENDERNAME) ~> filter1",
+				"source1 filter(deptID == $ID) ~> filter1",
 				"filter1 sink(allowSchemaDrift: true,",
 				"     validateSchema: false,",
 				"     skipDuplicateMapInputs: true,",
