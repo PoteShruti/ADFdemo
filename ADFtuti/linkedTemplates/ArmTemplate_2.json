@@ -872,6 +872,37 @@
 			"dependsOn": []
 		},
 		{
+			"name": "[concat(parameters('factoryName'), '/powerquery1')]",
+			"type": "Microsoft.DataFactory/factories/dataflows",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"type": "WranglingDataFlow",
+				"typeProperties": {
+					"sources": [
+						{
+							"name": "inputstudent",
+							"script": "source(allowSchemaDrift: true,\n\tvalidateSchema: false,\n\tignoreNoFilesFound: false) ~>  inputstudent",
+							"dataset": {
+								"referenceName": "inputstudent",
+								"type": "DatasetReference"
+							}
+						},
+						{
+							"name": "inputdepartment",
+							"script": "source(allowSchemaDrift: true,\n\tvalidateSchema: false,\n\tignoreNoFilesFound: false) ~>  inputdepartment",
+							"dataset": {
+								"referenceName": "inputdepartment",
+								"type": "DatasetReference"
+							}
+						}
+					],
+					"script": "section Section1;\r\nshared inputstudent = let AdfDoc = AzureStorage.BlobContents(\"https://storageaccounttuti.blob.core.windows.net/adfdemotuti/Input/stud_t.csv\"),Csv = Csv.Document(AdfDoc, [Delimiter = \",\", Encoding = TextEncoding.Utf8, QuoteStyle = QuoteStyle.Csv]), PromotedHeaders = Table.PromoteHeaders(Csv, [PromoteAllScalars = true]) in  PromotedHeaders;\r\nshared inputdepartment = let AdfDoc = AzureStorage.BlobContents(\"https://storageaccounttuti.blob.core.windows.net/adfdemotuti/Input/filestud.csv\"),Csv = Csv.Document(AdfDoc, [Delimiter = \",\", Encoding = TextEncoding.Utf8, QuoteStyle = QuoteStyle.Csv]), PromotedHeaders = Table.PromoteHeaders(Csv, [PromoteAllScalars = true]) in  PromotedHeaders;\r\nshared UserQuery = let Source = #\"inputstudent\",\r\n  #\"Merged queries\" = Table.NestedJoin(Source, {\"deptID\"}, inputdepartment, {\"deptID \"}, \"inputdepartment\", JoinKind.Inner),\r\n  #\"Expanded inputdepartment\" = Table.ExpandTableColumn(#\"Merged queries\", \"inputdepartment\", {\"deptID \", \" Department\"}, {\"inputdepartment.deptID \", \"inputdepartment. Department\"}),\r\n  #\"Removed columns\" = Table.RemoveColumns(#\"Expanded inputdepartment\", {\"inputdepartment.deptID \"}) in #\"Removed columns\";\r\n",
+					"documentLocale": "en-us"
+				}
+			},
+			"dependsOn": []
+		},
+		{
 			"name": "[concat(parameters('factoryName'), '/BULK')]",
 			"type": "Microsoft.DataFactory/factories/pipelines",
 			"apiVersion": "2018-06-01",
@@ -1122,53 +1153,6 @@
 			},
 			"dependsOn": [
 				"[concat(variables('factoryId'), '/datasets/Sql_dataset_t1')]"
-			]
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/pipeline_aggregate')]",
-			"type": "Microsoft.DataFactory/factories/pipelines",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"activities": [
-					{
-						"name": "Data flow1",
-						"type": "ExecuteDataFlow",
-						"dependsOn": [],
-						"policy": {
-							"timeout": "0.12:00:00",
-							"retry": 0,
-							"retryIntervalInSeconds": 30,
-							"secureOutput": false,
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"dataflow": {
-								"referenceName": "dataflow_flatten",
-								"type": "DataFlowReference",
-								"parameters": {},
-								"datasetParameters": {
-									"source1": {},
-									"sink1": {}
-								}
-							},
-							"staging": {},
-							"compute": {
-								"coreCount": 8,
-								"computeType": "General"
-							},
-							"traceLevel": "Fine"
-						}
-					}
-				],
-				"policy": {
-					"elapsedTimeMetric": {},
-					"cancelAfter": {}
-				},
-				"annotations": []
-			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/dataflows/dataflow_flatten')]"
 			]
 		}
 	]
