@@ -943,11 +943,10 @@
 						"userProperties": [],
 						"typeProperties": {
 							"dataflow": {
-								"referenceName": "aggregatedataflow",
+								"referenceName": "dataflow_flatten",
 								"type": "DataFlowReference",
 								"parameters": {},
 								"datasetParameters": {
-									"input": {},
 									"source1": {},
 									"sink1": {}
 								}
@@ -968,7 +967,7 @@
 				"annotations": []
 			},
 			"dependsOn": [
-				"[concat(variables('factoryId'), '/dataflows/aggregatedataflow')]"
+				"[concat(variables('factoryId'), '/dataflows/dataflow_flatten')]"
 			]
 		},
 		{
@@ -1148,6 +1147,52 @@
 			]
 		},
 		{
+			"name": "[concat(parameters('factoryName'), '/pipeline_filter')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Filter1",
+						"type": "Filter",
+						"dependsOn": [],
+						"userProperties": [],
+						"typeProperties": {
+							"items": {
+								"value": "@pipeline().parameters.ArrayOFvalues",
+								"type": "Expression"
+							},
+							"condition": {
+								"value": "@greater(item(),3)",
+								"type": "Expression"
+							}
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {},
+					"cancelAfter": {}
+				},
+				"parameters": {
+					"ArrayOFvalues": {
+						"type": "array",
+						"defaultValue": [
+							1,
+							2,
+							3,
+							4,
+							5,
+							6,
+							7,
+							8
+						]
+					}
+				},
+				"annotations": []
+			},
+			"dependsOn": []
+		},
+		{
 			"name": "[concat(parameters('factoryName'), '/pipeline_filter_dataflow')]",
 			"type": "Microsoft.DataFactory/factories/pipelines",
 			"apiVersion": "2018-06-01",
@@ -1192,6 +1237,53 @@
 			},
 			"dependsOn": [
 				"[concat(variables('factoryId'), '/dataflows/dataflow2')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/pipeline_flatten')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Data flow1",
+						"type": "ExecuteDataFlow",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"dataflow": {
+								"referenceName": "dataflow_flatten",
+								"type": "DataFlowReference",
+								"parameters": {},
+								"datasetParameters": {
+									"source1": {},
+									"sink1": {}
+								}
+							},
+							"staging": {},
+							"compute": {
+								"coreCount": 8,
+								"computeType": "General"
+							},
+							"traceLevel": "Fine"
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {},
+					"cancelAfter": {}
+				},
+				"annotations": []
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/dataflows/dataflow_flatten')]"
 			]
 		},
 		{
@@ -1605,6 +1697,31 @@
 						"type": "AzureBlobStorageLocation",
 						"fileName": "fileapi",
 						"folderPath": "Output",
+						"container": "adfdemotuti"
+					}
+				},
+				"schema": {}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/linkedserviceadftuti')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Json_input')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "linkedserviceadftuti",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "Json",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobStorageLocation",
+						"fileName": "sample2.json",
+						"folderPath": "Input",
 						"container": "adfdemotuti"
 					}
 				},
@@ -2492,7 +2609,7 @@
 			"dependsOn": []
 		},
 		{
-			"name": "[concat(parameters('factoryName'), '/aggregatedataflow')]",
+			"name": "[concat(parameters('factoryName'), '/PivotTFS')]",
 			"type": "Microsoft.DataFactory/factories/dataflows",
 			"apiVersion": "2018-06-01",
 			"properties": {
@@ -2504,14 +2621,7 @@
 								"referenceName": "inputstudent",
 								"type": "DatasetReference"
 							},
-							"name": "input"
-						},
-						{
-							"dataset": {
-								"referenceName": "inputdepartment",
-								"type": "DatasetReference"
-							},
-							"name": "source1"
+							"name": "Stud"
 						}
 					],
 					"sinks": [
@@ -2526,9 +2636,6 @@
 					"transformations": [
 						{
 							"name": "aggregate1"
-						},
-						{
-							"name": "join1"
 						}
 					],
 					"scriptLines": [
@@ -2539,38 +2646,20 @@
 						"     ),",
 						"     allowSchemaDrift: true,",
 						"     validateSchema: false,",
-						"     ignoreNoFilesFound: false) ~> input",
-						"source(output(",
-						"          {deptID } as string,",
-						"          { Department} as string",
-						"     ),",
-						"     allowSchemaDrift: true,",
+						"     ignoreNoFilesFound: false) ~> Stud",
+						"Stud aggregate(groupBy(Name),",
+						"     deptID = count(deptID)) ~> aggregate1",
+						"aggregate1 sink(allowSchemaDrift: true,",
 						"     validateSchema: false,",
-						"     ignoreNoFilesFound: false) ~> source1",
-						"input aggregate(groupBy(deptID),",
-						"     Totalstudent = count(deptID)) ~> aggregate1",
-						"aggregate1, source1 join(deptID == {deptID },",
-						"     joinType:'inner',",
-						"     matchType:'exact',",
-						"     ignoreSpaces: false,",
-						"     broadcast: 'auto')~> join1",
-						"join1 sink(allowSchemaDrift: true,",
-						"     validateSchema: false,",
-						"     partitionFileNames:['agrregateoutput.csv'],",
+						"     partitionFileNames:['pivot.csv'],",
 						"     skipDuplicateMapInputs: true,",
 						"     skipDuplicateMapOutputs: true,",
-						"     mapColumn(",
-						"          {deptID },",
-						"          { Department},",
-						"          Totalstudent",
-						"     ),",
 						"     partitionBy('hash', 1)) ~> sink1"
 					]
 				}
 			},
 			"dependsOn": [
 				"[concat(variables('factoryId'), '/datasets/inputstudent')]",
-				"[concat(variables('factoryId'), '/datasets/inputdepartment')]",
 				"[concat(variables('factoryId'), '/datasets/OUTPUTDATASET')]"
 			]
 		},
@@ -2779,7 +2868,7 @@
 			]
 		},
 		{
-			"name": "[concat(parameters('factoryName'), '/dataflow_newbranch')]",
+			"name": "[concat(parameters('factoryName'), '/dataflow_flatten')]",
 			"type": "Microsoft.DataFactory/factories/dataflows",
 			"apiVersion": "2018-06-01",
 			"properties": {
@@ -2788,17 +2877,10 @@
 					"sources": [
 						{
 							"dataset": {
-								"referenceName": "inputstudent",
+								"referenceName": "Json_input",
 								"type": "DatasetReference"
 							},
-							"name": "student"
-						},
-						{
-							"dataset": {
-								"referenceName": "inputdepartment",
-								"type": "DatasetReference"
-							},
-							"name": "dept"
+							"name": "source1"
 						}
 					],
 					"sinks": [
@@ -2808,70 +2890,58 @@
 								"type": "DatasetReference"
 							},
 							"name": "sink1"
-						},
-						{
-							"dataset": {
-								"referenceName": "OUTPUTDATASET",
-								"type": "DatasetReference"
-							},
-							"name": "sink2"
 						}
 					],
 					"transformations": [
 						{
-							"name": "aggregate1"
-						},
-						{
-							"name": "join1"
+							"name": "flatten1"
 						}
 					],
 					"scriptLines": [
 						"source(output(",
-						"          Name as string,",
-						"          Age as string,",
-						"          deptID as string",
+						"          address as (city as string, state as string, streetAddress as short),",
+						"          age as short,",
+						"          firstName as string,",
+						"          gender as string,",
+						"          lastName as string,",
+						"          phoneNumbers as (number as long, type as string)[],",
+						"          skilss as string[]",
 						"     ),",
 						"     allowSchemaDrift: true,",
 						"     validateSchema: false,",
-						"     ignoreNoFilesFound: false) ~> student",
-						"source(output(",
-						"          {deptID } as string,",
-						"          { Department} as string",
+						"     ignoreNoFilesFound: false,",
+						"     documentForm: 'singleDocument') ~> source1",
+						"source1 foldDown(unroll(skilss),",
+						"     mapColumn(",
+						"          address,",
+						"          age,",
+						"          firstName,",
+						"          gender,",
+						"          lastName,",
+						"          phoneNumbers,",
+						"          skilss",
 						"     ),",
-						"     allowSchemaDrift: true,",
+						"     skipDuplicateMapInputs: false,",
+						"     skipDuplicateMapOutputs: false) ~> flatten1",
+						"flatten1 sink(allowSchemaDrift: true,",
 						"     validateSchema: false,",
-						"     ignoreNoFilesFound: false) ~> dept",
-						"student aggregate(groupBy(deptID),",
-						"     Totalstudent = count(deptID)) ~> aggregate1",
-						"student, dept join(deptID == {deptID },",
-						"     joinType:'inner',",
-						"     matchType:'exact',",
-						"     ignoreSpaces: false,",
-						"     broadcast: 'auto')~> join1",
-						"join1 sink(allowSchemaDrift: true,",
-						"     validateSchema: false,",
-						"     partitionFileNames:['newbrach.csv'],",
+						"     partitionFileNames:['jsonflattnoutput.csv'],",
 						"     skipDuplicateMapInputs: true,",
 						"     skipDuplicateMapOutputs: true,",
 						"     mapColumn(",
-						"          Name,",
-						"          Age,",
-						"          deptID,",
-						"          { Department}",
+						"          age,",
+						"          firstName,",
+						"          gender,",
+						"          lastName,",
+						"          phoneNumbers,",
+						"          skilss",
 						"     ),",
-						"     partitionBy('hash', 1)) ~> sink1",
-						"aggregate1 sink(allowSchemaDrift: true,",
-						"     validateSchema: false,",
-						"     partitionFileNames:['studaggcount.idcsv'],",
-						"     skipDuplicateMapInputs: true,",
-						"     skipDuplicateMapOutputs: true,",
-						"     partitionBy('hash', 1)) ~> sink2"
+						"     partitionBy('hash', 1)) ~> sink1"
 					]
 				}
 			},
 			"dependsOn": [
-				"[concat(variables('factoryId'), '/datasets/inputstudent')]",
-				"[concat(variables('factoryId'), '/datasets/inputdepartment')]",
+				"[concat(variables('factoryId'), '/datasets/Json_input')]",
 				"[concat(variables('factoryId'), '/datasets/OUTPUTDATASET')]"
 			]
 		},
@@ -3009,6 +3079,79 @@
 			"dependsOn": [
 				"[concat(variables('factoryId'), '/datasets/inputstudent')]",
 				"[concat(variables('factoryId'), '/datasets/OUTPUTDATASET')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/dataflow_surrogate')]",
+			"type": "Microsoft.DataFactory/factories/dataflows",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"type": "MappingDataFlow",
+				"typeProperties": {
+					"sources": [
+						{
+							"dataset": {
+								"referenceName": "inputstudent",
+								"type": "DatasetReference"
+							},
+							"name": "source1"
+						}
+					],
+					"sinks": [
+						{
+							"dataset": {
+								"referenceName": "OUTPUTDATASET",
+								"type": "DatasetReference"
+							},
+							"name": "sink1",
+							"rejectedDataLinkedService": {
+								"referenceName": "linkedserviceadftuti",
+								"type": "LinkedServiceReference"
+							}
+						}
+					],
+					"transformations": [
+						{
+							"name": "surrogateKey1"
+						},
+						{
+							"name": "select1"
+						}
+					],
+					"scriptLines": [
+						"source(output(",
+						"          Name as string,",
+						"          Age as string,",
+						"          deptID as string",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     ignoreNoFilesFound: false) ~> source1",
+						"source1 keyGenerate(output(Studentkey as long),",
+						"     startAt: 1L,",
+						"     stepValue: 1L) ~> surrogateKey1",
+						"surrogateKey1 select(mapColumn(",
+						"          StudentKey = Studentkey,",
+						"          Name,",
+						"          Age,",
+						"          DepartmentID = deptID",
+						"     ),",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true) ~> select1",
+						"select1 sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     partitionFileNames:['surrogatestudent.csv'],",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true,",
+						"     saveOrder: 1,",
+						"     partitionBy('hash', 1)) ~> sink1"
+					]
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/datasets/inputstudent')]",
+				"[concat(variables('factoryId'), '/datasets/OUTPUTDATASET')]",
+				"[concat(variables('factoryId'), '/linkedServices/linkedserviceadftuti')]"
 			]
 		},
 		{
