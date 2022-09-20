@@ -1,0 +1,20 @@
+{
+	"name": "powerquery_groupby",
+	"properties": {
+		"type": "WranglingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"name": "inputstudent",
+					"script": "source(allowSchemaDrift: true,\n\tvalidateSchema: false,\n\tignoreNoFilesFound: false) ~>  inputstudent",
+					"dataset": {
+						"referenceName": "inputstudent",
+						"type": "DatasetReference"
+					}
+				}
+			],
+			"script": "section Section1;\r\nshared inputstudent = let AdfDoc = AzureStorage.BlobContents(\"https://storageaccounttuti.blob.core.windows.net/adfdemotuti/Input/stud_t.csv\"),Csv = Csv.Document(AdfDoc, [Delimiter = \",\", Encoding = TextEncoding.Utf8, QuoteStyle = QuoteStyle.Csv]), PromotedHeaders = Table.PromoteHeaders(Csv, [PromoteAllScalars = true]) in  PromotedHeaders;\r\nshared UserQuery = let Source = #\"inputstudent\",\r\n  #\"Grouped rows\" = Table.Group(Source, {\"Gender\"}, {{\"GroupbyGender\", each Table.RowCount(_), Int64.Type}}),\r\n  #\"Promoted headers\" = Table.PromoteHeaders(#\"Grouped rows\", [PromoteAllScalars = true]),\r\n  #\"Demoted headers\" = Table.DemoteHeaders(#\"Promoted headers\") in #\"Demoted headers\";\r\n",
+			"documentLocale": "en-us"
+		}
+	}
+}
